@@ -1,0 +1,16 @@
+﻿<Window x:Class="db_course.NormalUser"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:db_course"
+        mc:Ignorable="d"
+        Title="NormalUser" Height="392.876" Width="324.352">
+    <Grid>
+        <Button Content="管理订单" HorizontalAlignment="Left" Height="47" Margin="93,27,0,0" VerticalAlignment="Top" Width="120" Click="ManageOrders_Click"/>
+        <Button Content="查看历史记录" HorizontalAlignment="Left" Height="47" Margin="93,110,0,0" VerticalAlignment="Top" Width="120" Click="ViewHistory_Click"/>
+        <Button Content="查看收藏图书" HorizontalAlignment="Left" Height="47" Margin="93,190,0,0" VerticalAlignment="Top" Width="120" Click="ViewCollectedBooks_Click"/>
+        <Button Content="配置信息" HorizontalAlignment="Left" Height="47" Margin="93,277,0,0" VerticalAlignment="Top" Width="120" Click="Configure_Click"/>
+
+    </Grid>
+</Window>

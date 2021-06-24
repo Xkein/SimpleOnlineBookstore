@@ -1,0 +1,55 @@
+﻿<Window x:Class="db_course.ManageActivities"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:db_course"
+        mc:Ignorable="d"
+        Title="ManageActivities" Height="482" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ListView x:Name="lvOrders" HorizontalAlignment="Left" Height="300" Margin="39,137,0,0" VerticalAlignment="Top" Width="710">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="活动ID" Width="100" DisplayMemberBinding="{Binding Path=[0]}"/>
+                    <GridViewColumn Header="活动时间" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=[2]}" Width="80"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="活动描述" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=[3]}" Width="80"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="优惠形式" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=[4]}" Width="80"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="折扣" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=[5]}" Width="80"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button Content="删除" HorizontalAlignment="Left" Margin="574,78,0,0" VerticalAlignment="Top" Width="94" Height="34" Click="Delete_Click"/>
+        <Button Content="新增" HorizontalAlignment="Left" Margin="574,27,0,0" VerticalAlignment="Top" Width="94" Height="34" Click="New_Click"/>
+        <TextBox x:Name="tbID" HorizontalAlignment="Left" Height="29" Margin="154,61,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" AllowDrop="False"/>
+        <Label Content="新增活动ID" HorizontalAlignment="Left" Margin="59,61,0,0" VerticalAlignment="Top" Width="79"/>
+
+    </Grid>
+</Window>
+

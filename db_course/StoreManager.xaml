@@ -1,0 +1,15 @@
+﻿<Window x:Class="db_course.StoreManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:db_course"
+        mc:Ignorable="d"
+        Title="StoreManager" Height="361.399" Width="248.575">
+    <Grid>
+        <Button Content="管理活动" HorizontalAlignment="Left" Height="47" Margin="61,48,0,0" VerticalAlignment="Top" Width="120" Click="ManageActivities_Click"/>
+        <Button Content="管理图书" HorizontalAlignment="Left" Height="47" Margin="61,140,0,0" VerticalAlignment="Top" Width="120" Click="ManageBooks_Click"/>
+        <Button Content="配置信息" HorizontalAlignment="Left" Height="47" Margin="61,233,0,0" VerticalAlignment="Top" Width="120" Click="Configure_Click"/>
+
+    </Grid>
+</Window>

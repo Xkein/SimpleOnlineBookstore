@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/db_course/v16
+/Core/bin/Debug
+/Core/obj/Debug
+/db_course/bin/Debug
+/db_course/obj/Debug
+/packages/Oracle.ManagedDataAccess.19.11.0
