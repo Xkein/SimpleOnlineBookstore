@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Core;
+using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +25,47 @@ namespace db_course
         public ViewHistory()
         {
             InitializeComponent();
+
+            User user = General.User;
+            try
+            {
+                user.Connect();
+                DataSet ds = user.ExecuteQuery($"select * from RG.浏览历史记录 where 用户ID = '{user.ID}'");
+                DataTable dt = ds.Tables["ds"];
+                lvOrders.ItemsSource = dt.DefaultView;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                user.Close();
+            }
+        }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            User user = General.User;
+            try
+            {
+                var item = lvOrders.SelectedItem as DataRowView;
+                if (item != null)
+                {
+                    user.Connect();
+                    user.ExecuteNonQuery($"delete from RG.浏览历史记录 where 用户ID='{item[0]}'");
+                    DataView dv = lvOrders.ItemsSource as DataView;
+                    dv.Table.Rows.Remove(item.Row);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                user.Close();
+            }
         }
     }
 }

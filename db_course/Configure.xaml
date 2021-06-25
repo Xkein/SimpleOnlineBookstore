@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:db_course"
         mc:Ignorable="d"
-        Title="Configure" Height="450" Width="800">
+        Title="Configure" Height="450" Width="519">
     <Grid>
-        
+        <Canvas x:Name="cnvStoreConfig" Margin="39,25,24,20">
+            <TextBox x:Name="tbAddress" HorizontalAlignment="Left" Height="55" TextWrapping="Wrap" VerticalAlignment="Top" Width="344" AllowDrop="False" Canvas.Top="30"/>
+            <Label Content="所在地址" HorizontalAlignment="Left" VerticalAlignment="Top" Width="79"/>
+            <TextBox x:Name="tbDesc" HorizontalAlignment="Left" Height="254" TextWrapping="Wrap" VerticalAlignment="Top" Width="344" AllowDrop="False" Canvas.Top="120"/>
+            <Label Content="店铺描述" HorizontalAlignment="Left" VerticalAlignment="Top" Width="79" Canvas.Top="90"/>
+            <Button Content="保存" HorizontalAlignment="Left" VerticalAlignment="Top" Width="83" Height="374" Click="Save_Click" Canvas.Left="365"/>
+        </Canvas>
     </Grid>
 </Window>

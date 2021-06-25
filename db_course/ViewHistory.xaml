@@ -7,6 +7,16 @@
         mc:Ignorable="d"
         Title="ViewHistory" Height="450" Width="800">
     <Grid>
-        
+        <ListView x:Name="lvOrders" HorizontalAlignment="Left" Height="335" Margin="39,62,0,0" VerticalAlignment="Top" Width="710">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="图书ID" Width="200" DisplayMemberBinding="{Binding Path=[1]}"/>
+                    <GridViewColumn Header="日期" Width="200" DisplayMemberBinding="{Binding Path=[2]}"/>
+                    <GridViewColumn Header="位置" Width="200" DisplayMemberBinding="{Binding Path=[3]}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button Content="删除" HorizontalAlignment="Left" Margin="39,10,0,0" VerticalAlignment="Top" Width="710" Height="36" Click="Delete_Click"/>
+
     </Grid>
 </Window>
