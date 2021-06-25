@@ -82,8 +82,11 @@ create table 订单子项目(
 create table 收货信息(
     收货地址  varchar2(50 char),
     收货人 varchar2(15 char),
-    收货人电话 varchar2(20)
+    收货人电话 varchar2(20),
+    用户ID varchar2(20) not null,
+    foreign key(用户ID) references 用户(ID)
 );
+
 create table 发货信息(
     发货地址  varchar2(50 char),
     发货人 varchar2(15 char),
@@ -152,6 +155,60 @@ begin
  execute immediate 'grant select,update,delete,insert on 收货信息 to ' || ID;
 end;
 
+create or replace procedure 删除图书(ID in varchar2) is
+begin
+ delete from 评论 where 图书ID = ID;
+ delete from 收藏 where 图书ID = ID;
+ delete from 浏览历史记录 where 图书ID = ID;
+ delete from 图书信息 where 图书ID = ID;
+ delete from 图书 where ID = ID;
+end;
+
+create or replace procedure 删除购物车(用户ID in varchar2) is
+    购物车ID 购物车.ID%TYPE;
+begin
+ select ID into 购物车ID from 购物车 where 用户ID = 用户ID;
+ delete from 购物车子项目 where 购物车ID = 购物车ID;
+ delete from 购物车 where ID = 购物车ID;
+end;
+
+create or replace procedure 删除订单(用户ID in varchar2) is
+    订单ID 订单.ID%TYPE;
+begin
+ select ID into 订单ID from 订单 where 用户ID = 用户ID;
+ delete from 订单子项目 where 订单ID = 订单ID;
+ delete from 订单 where ID = 订单ID;
+end;
+
+create or replace procedure 删除用户或店铺(ID in varchar2) is
+    type T图书列表 is table of 图书.ID%TYPE;
+    图书列表 T图书列表;
+    type T订单列表 is table of 订单.ID%TYPE;
+    订单列表 T订单列表;
+begin
+ delete from 发货信息 where 店铺ID =ID;
+ delete from 收货信息 where 用户ID =ID;
+ delete from 评论 where 用户ID =ID;
+ delete from 收藏 where 用户ID =ID;
+ delete from 浏览历史记录 where 用户ID =ID;
+ 
+ 删除购物车(ID);
+ 
+ select ID bulk collect into 图书列表 from 图书 where 店铺ID = ID;
+ for idx in 图书列表.first .. 图书列表.last loop
+     删除图书(图书列表(idx));
+ end loop;
+ 
+ select ID bulk collect into 订单列表 from 订单 where 用户ID = ID;
+ for idx in 订单列表.first .. 订单列表.last loop
+     删除订单(订单列表(idx));
+ end loop;
+ 
+ delete from 活动 where 店铺ID =ID;
+ delete from 用户 where ID =ID;
+ delete from 店铺 where ID =ID;
+end;
+
 create or replace trigger 用户插入 before insert or update on 用户
 for each row
 declare
@@ -168,27 +225,193 @@ begin
     店铺授权(:new.ID);
 end;
 
-
-
-create or replace procedure 删除用户或店铺(ID in varchar2) is
+create or replace trigger 图书删除 before insert or update on 图书
+for each row
+declare
+pragma autonomous_transaction;
 begin
- execute immediate 'delete from 用户 where ID =''' || ID || '''';
- execute immediate 'delete from 店铺 where ID =''' || ID || '''';
+    删除图书(:new.ID);
 end;
+
+CREATE OR REPLACE TRIGGER 权限检查
+BEFORE DROP or TRUNCATE ON DATABASE
+begin
+if ora_login_user not in ('SYS', 'RG') THEN
+    if dictionary_obj_type in ('用户', '店铺', '订单', '订单子项目', '购物车') THEN
+        Raise_application_error (-20001,'权限不足！');
+    elsif dictionary_obj_type not in ('收货信息', '浏览历史记录', '收藏', '评论', '图书', '活动', '收货信息', '购物车子项目', '图书信息') THEN
+        Raise_application_error (-20001,'权限不足！');
+    elsif dictionary_obj_owner <> ora_login_user THEN
+        Raise_application_error (-20001,'权限不足！');
+    end if;
+end if;
+end;
+
+select 
+   'CREATE OR REPLACE TRIGGER '||table_name||'权限检查
+   BEFORE DELETE or UPDATE on '||table_name||'
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in (''SYS'', ''RG'') THEN
+            IF ora_login_user <> :old.用户ID  THEN
+                Raise_application_error (-20001,''权限不足！'');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger '||table_name||'权限检查 enable;' as triggerSql
+from tabs where table_name in ('收货信息', '浏览历史记录', '收藏', '评论') order by table_name;
+
+-- 生成结果开始
+CREATE OR REPLACE TRIGGER 收藏权限检查
+   BEFORE DELETE or UPDATE on 收藏
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.用户ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 收藏权限检查 enable;
+CREATE OR REPLACE TRIGGER 收货信息权限检查
+   BEFORE DELETE or UPDATE on 收货信息
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.用户ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 收货信息权限检查 enable;
+CREATE OR REPLACE TRIGGER 浏览历史记录权限检查
+   BEFORE DELETE or UPDATE on 浏览历史记录
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.用户ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 浏览历史记录权限检查 enable;
+CREATE OR REPLACE TRIGGER 评论权限检查
+   BEFORE DELETE or UPDATE on 评论
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.用户ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 评论权限检查 enable;
+-- 生成结果结束
+
+select 
+   'CREATE OR REPLACE TRIGGER '||table_name||'权限检查
+   BEFORE DELETE or UPDATE on '||table_name||'
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in (''SYS'', ''RG'') THEN
+            IF ora_login_user <> :old.店铺ID  THEN
+                Raise_application_error (-20001,''权限不足！'');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger '||table_name||'权限检查 enable;' as triggerSql
+from tabs where table_name in ('图书', '活动', '发货信息') order by table_name;
+
+-- 生成结果开始
+CREATE OR REPLACE TRIGGER 发货信息权限检查
+   BEFORE DELETE or UPDATE on 发货信息
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.店铺ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 发货信息权限检查 enable;
+CREATE OR REPLACE TRIGGER 图书权限检查
+   BEFORE DELETE or UPDATE on 图书
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.店铺ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 图书权限检查 enable;
+CREATE OR REPLACE TRIGGER 活动权限检查
+   BEFORE DELETE or UPDATE on 活动
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.店铺ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 活动权限检查 enable;
+-- 生成结果结束
+
+CREATE OR REPLACE TRIGGER 购物车子项目权限检查
+BEFORE DELETE or UPDATE ON 购物车子项目
+FOR EACH ROW
+DECLARE
+    ALLOW_FLAG int;
+begin
+ if ora_login_user not in ('SYS', 'RG') THEN
+    select count(*) into ALLOW_FLAG from 购物车 where 用户ID = ora_login_user and ID = :old.购物车ID;
+    IF ALLOW_FLAG = 0 THEN
+        Raise_application_error (-20001,'权限不足！');
+    END IF;
+ end if;
+end;
+
+CREATE OR REPLACE TRIGGER 图书信息权限检查
+BEFORE DELETE or UPDATE ON 图书信息
+FOR EACH ROW
+DECLARE
+    ALLOW_FLAG int;
+begin
+ if ora_login_user not in ('SYS', 'RG') THEN
+    select count(*) into ALLOW_FLAG from 图书 where 店铺ID = ora_login_user and ID = :old.图书ID;
+    IF ALLOW_FLAG = 0 THEN
+        Raise_application_error (-20001,'权限不足！');
+    END IF;
+ end if;
+end;
+
+
+
+
+
+
+
+
 
 create user test identified by testpw;
 insert into 用户(ID) values('test');
 drop user test cascade;
 
-
-CREATE OR REPLACE TRIGGER TRIGGER_UNDROPTABLE
-BEFORE DROP or TRUNCATE ON DATABASE
+DECLARE
+    ALLOW_FLAG int;
 begin
-if ora_login_user not in ('SYS') THEN
-  if upper(dictionary_obj_type) ='TABLE'or upper(dictionary_obj_type)='INDEX' THEN
-     Raise_application_error (-20001,'Please not do DROP Table or Index,do not Truncate table ,You will be Caught!!!');
-  end if;
-end if;
+    execute immediate 'select count(*) from ' || '图书' || 'where 店铺ID = ''' || 'dp1' || '''' into ALLOW_FLAG;
+    dbms_output.put_line(ALLOW_FLAG);
 end;
 
 select * from dba_network_acl_privileges ;
