@@ -7,11 +7,12 @@
         mc:Ignorable="d"
         Title="ManageOrders" Height="450" Width="800">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="199,97,0,0" VerticalAlignment="Top" Width="75"/>
-        <ListView x:Name="lvOrders" HorizontalAlignment="Left" Height="197" Margin="120,171,0,0" VerticalAlignment="Top" Width="519">
+        <ListView x:Name="lvOrders" HorizontalAlignment="Left" Height="335" Margin="39,62,0,0" VerticalAlignment="Top" Width="710">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn/>
+                    <GridViewColumn Header="订单ID" Width="200" DisplayMemberBinding="{Binding Path=[0]}"/>
+                    <GridViewColumn Header="生成日期" Width="200" DisplayMemberBinding="{Binding Path=[2]}"/>
+                    <GridViewColumn Header="状态" Width="200" DisplayMemberBinding="{Binding Path=[3]}"/>
                 </GridView>
             </ListView.View>
         </ListView>

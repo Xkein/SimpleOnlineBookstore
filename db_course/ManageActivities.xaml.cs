@@ -95,7 +95,7 @@ namespace db_course
                 if (item != null)
                 {
                     user.Connect();
-                    user.ExecuteNonQuery($"delete from RG.活动 where ID='{item}'");
+                    user.ExecuteNonQuery($"delete from RG.活动 where ID='{item[0]}'");
                     DataView dv = lvOrders.ItemsSource as DataView;
                     dv.Table.Rows.Remove(item.Row);
                 }

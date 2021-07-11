@@ -24,18 +24,18 @@ namespace db_course
         public ManageOrders()
         {
             InitializeComponent();
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
 
             User user = General.User;
             try
             {
                 user.Connect();
-                DataSet ds = user.ExecuteQuery($"select * from RG.订单 where 用户ID = {user.ID}");
-                lvOrders.ItemsSource = ds.Tables["ds"].DefaultView;
+                DataSet ds = user.ExecuteQuery($"select * from RG.订单 where 用户ID = '{user.ID}'");
+                DataTable dt = ds.Tables["ds"];
+                lvOrders.ItemsSource = dt.DefaultView;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
             finally
             {

@@ -25,7 +25,7 @@ namespace Core
                 "USER ID={0};" +
                 "password={1}", id, password, dataSource);
             Connection = new OracleConnection(connectionStr);
-            ID = id;
+            ID = id.ToUpper();
         }
 
         public OracleConnection Connection { get; private set; }
@@ -95,7 +95,7 @@ namespace Core
             return ret;
         }
 
-        public OracleCommand CreateCommand(string cmdText, OracleParameter[] cmdParms = null, OracleTransaction trans = null)
+        public OracleCommand CreateCommand(string cmdText, OracleParameter[] cmdParms = null, CommandType cmdType = CommandType.Text, OracleTransaction trans = null)
         {
             OracleCommand cmd = Connection.CreateCommand();
             cmd.CommandText = cmdText;
@@ -104,7 +104,7 @@ namespace Core
                 cmd.Parameters.AddRange(cmdParms);
             }
             cmd.Transaction = trans;
-            cmd.CommandType = CommandType.Text;
+            cmd.CommandType = cmdType;
             return cmd;
         }
 
@@ -142,5 +142,16 @@ namespace Core
             }
         }
 
+        public DataSet ExecuteProcedure(string procName, params OracleParameter[] cmdParms)
+        {
+            OracleCommand cmd = CreateCommand(procName, cmdParms, CommandType.StoredProcedure);
+            using (OracleDataAdapter adapter = new OracleDataAdapter(cmd))
+            {
+                DataSet ds = new DataSet();
+                adapter.SelectCommand = cmd;
+                adapter.Fill(ds, "ds");
+                return ds;
+            }
+        }
     }
 }

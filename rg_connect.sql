@@ -146,7 +146,7 @@ end;
 create or replace procedure 店铺授权(ID in varchar2) is
 begin
  execute immediate 'grant select on 用户 to ' || ID;
- execute immediate 'grant select on 店铺 to ' || ID;
+ execute immediate 'grant select,update on 店铺 to ' || ID;
  execute immediate 'grant select,update,delete,insert on 图书 to ' || ID;
  execute immediate 'grant select,update,delete,insert on 图书信息 to ' || ID;
  execute immediate 'grant select,update,delete,insert on 活动 to ' || ID;
@@ -155,13 +155,12 @@ begin
  execute immediate 'grant select,update,delete,insert on 收货信息 to ' || ID;
 end;
 
-create or replace procedure 删除图书(ID in varchar2) is
+create or replace procedure 删除图书相关数据(ID in varchar2) is
 begin
  delete from 评论 where 图书ID = ID;
  delete from 收藏 where 图书ID = ID;
  delete from 浏览历史记录 where 图书ID = ID;
  delete from 图书信息 where 图书ID = ID;
- delete from 图书 where ID = ID;
 end;
 
 create or replace procedure 删除购物车(用户ID in varchar2) is
@@ -196,7 +195,7 @@ begin
  
  select ID bulk collect into 图书列表 from 图书 where 店铺ID = ID;
  for idx in 图书列表.first .. 图书列表.last loop
-     删除图书(图书列表(idx));
+     delete from 图书 where ID = ID;
  end loop;
  
  select ID bulk collect into 订单列表 from 订单 where 用户ID = ID;
@@ -225,12 +224,13 @@ begin
     店铺授权(:new.ID);
 end;
 
-create or replace trigger 图书删除 before insert or update on 图书
+create or replace trigger 图书删除 before delete on 图书
 for each row
 declare
 pragma autonomous_transaction;
 begin
-    删除图书(:new.ID);
+    删除图书相关数据(:new.ID);
+    COMMIT;
 end;
 
 CREATE OR REPLACE TRIGGER 权限检查
@@ -326,7 +326,7 @@ select
      END;
     /
     alter trigger '||table_name||'权限检查 enable;' as triggerSql
-from tabs where table_name in ('图书', '活动', '发货信息') order by table_name;
+from tabs where table_name in ('图书', '活动', '发货信息', '店铺') order by table_name;
 
 -- 生成结果开始
 CREATE OR REPLACE TRIGGER 发货信息权限检查
@@ -353,6 +353,18 @@ CREATE OR REPLACE TRIGGER 图书权限检查
      END;
     /
     alter trigger 图书权限检查 enable;
+CREATE OR REPLACE TRIGGER 店铺权限检查
+   BEFORE DELETE or UPDATE on 店铺
+    FOR EACH ROW
+     BEGIN
+        if ora_login_user not in ('SYS', 'RG') THEN
+            IF ora_login_user <> :old.ID  THEN
+                Raise_application_error (-20001,'权限不足！');
+            END IF;
+        end if;
+     END;
+    /
+    alter trigger 店铺权限检查 enable;
 CREATE OR REPLACE TRIGGER 活动权限检查
    BEFORE DELETE or UPDATE on 活动
     FOR EACH ROW
@@ -395,7 +407,26 @@ begin
  end if;
 end;
 
+-- 测试数据开始
+-- 为用户插入数据
+insert into 订单 values('00000001', 'YH1', sysdate, 0);
+insert into 订单子项目 values('00000001-001', '00000001', '昏睡原理', 1, sysdate, '待发货');
 
+insert into 浏览历史记录 values('YH1', '昏睡原理', sysdate, 0.1919810);
+
+insert into 收藏 values('YH1', '昏睡原理');
+
+
+insert into 订单 values('00000002', 'YH2', sysdate, 0);
+insert into 订单子项目 values('00000002-001', '00000002', '论红茶', 1, sysdate, '待发货');
+
+insert into 浏览历史记录 values('YH2', '昏睡原理', sysdate, 0.5);
+insert into 浏览历史记录 values('YH2', '论红茶', sysdate, 0.114514);
+
+insert into 收藏 values('YH2', '昏睡原理');
+insert into 收藏 values('YH2', '论红茶');
+
+-- 测试数据结束
 
 
 

@@ -55,12 +55,13 @@ namespace db_course
             try
             {
                 manager.Connect();
-                manager.ExecuteNonQuery($"create user {tbUser.Text} identified by {tbPassword.Password}");
-                manager.ExecuteNonQuery($"grant resource, connect to {tbUser.Text}");
+                string ID = tbUser.Text.ToUpper();
+                manager.ExecuteNonQuery($"create user {ID} identified by {tbPassword.Password}");
+                manager.ExecuteNonQuery($"grant resource, connect to {ID}");
 
-                manager.ExecuteNonQuery(string.Format("insert into {0}(ID) values('{1}')", (bool)rbUser.IsChecked ? "用户" : "店铺", tbUser.Text));
+                manager.ExecuteNonQuery(string.Format("insert into {0}(ID) values('{1}')", (bool)rbUser.IsChecked ? "用户" : "店铺", ID));
 
-                User user = new User(tbUser.Text, tbPassword.Password);
+                User user = new User(ID, tbPassword.Password);
                 if (user.Connect())
                 {
                     user.CloseAndClearPool();
@@ -84,11 +85,12 @@ namespace db_course
             Button button = sender as Button;
             button.IsEnabled = false;
             User manager = General.User;
+            string ID = tbUser.Text.ToUpper();
             try
             {
                 manager.Connect();
-                manager.ExecuteNonQuery($"drop user {tbUser.Text} cascade");
-                manager.ExecuteNonQuery(string.Format("delete from {0} where ID = '{1}'", (bool)rbUser.IsChecked ? "用户" : "店铺", tbUser.Text));
+                manager.ExecuteNonQuery($"drop user {ID} cascade");
+                manager.ExecuteNonQuery(string.Format("delete from {0} where ID = '{1}'", (bool)rbUser.IsChecked ? "用户" : "店铺", ID));
                 Result = "删除成功！";
             }
             catch (OracleException ex)
@@ -96,7 +98,7 @@ namespace db_course
                 Result = ex.Message;
                 try
                 {
-                    manager.ExecuteNonQuery(string.Format("delete from {0} where ID = '{1}'", (bool)rbUser.IsChecked ? "用户" : "店铺", tbUser.Text));
+                    manager.ExecuteNonQuery(string.Format("delete from {0} where ID = '{1}'", (bool)rbUser.IsChecked ? "用户" : "店铺", ID));
                 }
                 catch (Exception)
                 {
@@ -119,9 +121,10 @@ namespace db_course
             try
             {
                 manager.Connect();
-                manager.ExecuteNonQuery($"alter user {tbUser.Text} identified by {tbPassword.Password}");
+                string ID = tbUser.Text.ToUpper();
+                manager.ExecuteNonQuery($"alter user {ID} identified by {tbPassword.Password}");
 
-                User user = new User(tbUser.Text, tbPassword.Password);
+                User user = new User(ID, tbPassword.Password);
                 if (user.Connect())
                 {
                     user.CloseAndClearPool();

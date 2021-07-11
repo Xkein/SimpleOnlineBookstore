@@ -27,6 +27,23 @@ namespace db_course
 
             UserType = General.User.GetUserType();
             cnvStoreConfig.Visibility = UserType == UserType.StoreManager ? Visibility.Visible : Visibility.Collapsed;
+
+            User user = General.User;
+            try
+            {
+                user.Connect();
+
+                tbAddress.Text = user.ExecuteScalar($"select 所在地址 from RG.店铺 where ID = '{user.ID}'") as string;
+                tbDesc.Text = user.ExecuteScalar($"select 店铺描述 from RG.店铺 where ID = '{user.ID}'") as string;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                user.Close();
+            }
         }
 
         public UserType UserType { get; }
